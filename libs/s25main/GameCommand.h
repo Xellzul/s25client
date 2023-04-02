@@ -54,11 +54,13 @@ enum class GCType : uint8_t
     UpgradeRoad,
     SendSoldiersHome,
     OrderNewSoldiers,
-    NotifyAlliesOfLocation
+    NotifyAlliesOfLocation,
+    SendWorstSoldiersHome,
+    SetMilitaryOverrideAllowed
 };
 constexpr auto maxEnumValue(GCType)
 {
-    return GCType::NotifyAlliesOfLocation;
+    return GCType::SetMilitaryOverrideAllowed;
 }
 
 class GameCommand

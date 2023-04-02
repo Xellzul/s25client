@@ -56,6 +56,11 @@ bool GameCommandFactory::SendSoldiersHome(const MapPoint pt)
     return AddGC(new gc::SendSoldiersHome(pt));
 }
 
+bool GameCommandFactory::SendWorstSoldiersHome(const MapPoint pt)
+{
+    return AddGC(new gc::SendWorstSoldiersHome(pt));
+}
+
 bool GameCommandFactory::OrderNewSoldiers(const MapPoint pt)
 {
     return AddGC(new gc::OrderNewSoldiers(pt));
@@ -95,6 +100,11 @@ bool GameCommandFactory::SeaAttack(const MapPoint pt, unsigned soldiers_count, b
 bool GameCommandFactory::SetCoinsAllowed(const MapPoint pt, bool enabled)
 {
     return AddGC(new gc::SetCoinsAllowed(pt, enabled));
+}
+
+bool GameCommandFactory::SetMilitaryOverrideAllowed(const MapPoint pt, bool enabled, unsigned char value)
+{
+    return AddGC(new gc::SetMilitaryOverrideAllowed(pt, enabled, value));
 }
 
 bool GameCommandFactory::SetProductionEnabled(const MapPoint pt, bool enabled)

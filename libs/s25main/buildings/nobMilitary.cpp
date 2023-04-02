@@ -40,7 +40,9 @@
 
 nobMilitary::nobMilitary(const BuildingType type, const MapPoint pos, const unsigned char player, const Nation nation)
     : nobBaseMilitary(type, pos, player, nation), new_built(true), numCoins(0), coinsDisabled(false),
-      coinsDisabledVirtual(false), capturing(false), capturing_soldiers(0), goldorder_event(nullptr),
+      coinsDisabledVirtual(false), millitaryOverrideEnabled(false), millitaryOverrideEnabledVirtual(false),
+      capturing(false), capturing_soldiers(0),
+      goldorder_event(nullptr),
       upgrade_event(nullptr), is_regulating_troops(false)
 {
     // Gebäude entsprechend als Militärgebäude registrieren und in ein Militärquadrat eintragen
@@ -125,6 +127,8 @@ void nobMilitary::Serialize(SerializedGameData& sgd) const
     sgd.PushBool(new_built);
     sgd.PushUnsignedChar(numCoins);
     sgd.PushBool(coinsDisabled);
+    sgd.PushBool(millitaryOverrideEnabled);
+    sgd.PushUnsignedChar(millitaryOverride);
     sgd.PushEnum<uint8_t>(frontier_distance);
     sgd.PushUnsignedChar(size);
     sgd.PushBool(capturing);
@@ -136,11 +140,15 @@ void nobMilitary::Serialize(SerializedGameData& sgd) const
     sgd.PushObjectContainer(ordered_coins, true);
     sgd.PushObjectContainer(troops, true);
     sgd.PushObjectContainer(far_away_capturers, true);
+
 }
 
 nobMilitary::nobMilitary(SerializedGameData& sgd, const unsigned obj_id)
     : nobBaseMilitary(sgd, obj_id), new_built(sgd.PopBool()), numCoins(sgd.PopUnsignedChar()),
-      coinsDisabled(sgd.PopBool()), coinsDisabledVirtual(coinsDisabled), frontier_distance(sgd.Pop<FrontierDistance>()),
+      coinsDisabled(sgd.PopBool()), coinsDisabledVirtual(coinsDisabled), millitaryOverrideEnabled(sgd.PopBool()),
+      millitaryOverrideEnabledVirtual(millitaryOverrideEnabled),
+      millitaryOverride(sgd.PopUnsignedChar()),
+      frontier_distance(sgd.Pop<FrontierDistance>()),
       size(sgd.PopUnsignedChar()), capturing(sgd.PopBool()), capturing_soldiers(sgd.PopUnsignedInt()),
       goldorder_event(sgd.PopEvent()), upgrade_event(sgd.PopEvent()), is_regulating_troops(false)
 {
@@ -491,10 +499,20 @@ void nobMilitary::RegulateTroops()
     is_regulating_troops = false;
 }
 
+
+unsigned nobMilitary::GetCurrentMilitarySetting() const
+{
+    if(millitaryOverrideEnabled)
+    {
+        return millitaryOverride;
+    }
+
+    return world->GetPlayer(player).GetMilitarySetting(4 + rttr::enum_cast(frontier_distance));
+}
+
 unsigned nobMilitary::CalcRequiredNumTroops() const
 {
-    return CalcRequiredNumTroops(frontier_distance,
-                                 world->GetPlayer(player).GetMilitarySetting(4 + rttr::enum_cast(frontier_distance)));
+    return CalcRequiredNumTroops(frontier_distance, GetCurrentMilitarySetting());
 }
 
 unsigned nobMilitary::CalcRequiredNumTroops(FrontierDistance assumedFrontierDistance, unsigned settingValue) const
@@ -527,6 +545,32 @@ void nobMilitary::SendSoldiersHome()
         }
     }
 }
+
+void nobMilitary::SendWorstSoldiersHome()
+{
+    int diff = 1 - static_cast<int>(GetTotalSoldiers());
+    if(diff
+       < 0) // poc: this should only be >0 if we are being captured. capturing should be true until its the last soldier
+            // and this last one would count twice here and result in a returning soldier that shouldnt return.
+    {
+        // Nur rausschicken, wenn es einen Weg zu einem Lagerhaus gibt!
+        if(!world->GetPlayer(player).FindWarehouse(*this, FW::NoCondition(), true, false))
+            return;
+        int mrank = -1;
+        for(auto it = troops.begin(); diff && troops.size() > 1; ++diff)
+        {
+            if(mrank == -1) // set mrank = highest rank
+                mrank = (*it)->GetRank();
+            else if(mrank < (*it)->GetRank()) // if the current soldier is of lower rank than what we started with ->
+                                              // send no more troops out
+                return;
+            (*it)->LeaveBuilding();
+            AddLeavingFigure(std::move(*it));
+            troops.erase(it);
+        }
+    }
+}
+
 
 // used by the ai to refill the upgradebuilding with low rank soldiers! - normal orders for soldiers are done in
 // RegulateTroops!
@@ -1092,6 +1136,20 @@ void nobMilitary::NeedOccupyingTroops()
             ++it;
     }
 }
+
+void nobMilitary::SetMilitaryOverrideAllowed(const bool enabled, const unsigned char value)
+{
+    if(millitaryOverrideEnabled == false && enabled)
+        millitaryOverride = world->GetPlayer(player).GetMilitarySetting(4 + rttr::enum_cast(frontier_distance));
+    else
+        millitaryOverride = value;
+
+    millitaryOverrideEnabled = enabled;
+    // Wenn das von einem fremden Spieler umgestellt wurde (oder vom Replay), muss auch das visuelle umgestellt werden
+    if(GAMECLIENT.GetPlayerId() != player || GAMECLIENT.IsReplayModeOn())
+        millitaryOverrideEnabledVirtual = millitaryOverrideEnabled;
+}
+
 
 void nobMilitary::SetCoinsAllowed(const bool enabled)
 {

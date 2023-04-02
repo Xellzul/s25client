@@ -40,6 +40,8 @@ public:
     bool DestroyBuilding(MapPoint pt);
     /// send out soldiers
     bool SendSoldiersHome(MapPoint pt);
+    /// send out worst soldiers
+    bool SendWorstSoldiersHome(MapPoint pt);
     /// order new soldiers
     bool OrderNewSoldiers(MapPoint pt);
     bool ChangeTransport(const TransportOrders& data);
@@ -55,6 +57,7 @@ public:
     bool SeaAttack(MapPoint pt, unsigned soldiers_count, bool strong_soldiers);
     /// Toggles coin delivery on/off for a military building
     bool SetCoinsAllowed(MapPoint pt, bool enabled);
+    bool SetMilitaryOverrideAllowed(MapPoint pt, bool enabled, unsigned char value);
     /// Stops/starts production of a producer
     bool SetProductionEnabled(MapPoint pt, bool enabled);
     bool NotifyAlliesOfLocation(MapPoint pt);

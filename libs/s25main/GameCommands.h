@@ -224,6 +224,19 @@ public:
     void Execute(GameWorld& world, uint8_t playerId) override;
 };
 
+/// Send all highest rank soldiers home (used by ai to upgrade troops instead of changing mil settings all the time)
+class SendWorstSoldiersHome : public Coords
+{
+    GC_FRIEND_DECL;
+
+protected:
+    SendWorstSoldiersHome(const MapPoint pt) : Coords(GCType::SendWorstSoldiersHome, pt) {}
+    SendWorstSoldiersHome(Serializer& ser) : Coords(GCType::SendWorstSoldiersHome, ser) {}
+
+public:
+    void Execute(GameWorld& world, uint8_t playerId) override;
+};
+
 /// call for new min rank soldiers (used by ai to upgrade troops instead of changing mil settings all the time)
 class OrderNewSoldiers : public Coords
 {
@@ -399,6 +412,29 @@ public:
     {
         Coords::Serialize(ser);
         ser.PushBool(enabled);
+    }
+    void Execute(GameWorld& world, uint8_t playerId) override;
+};
+
+/// Goldzufuhr in einem Gebäude stoppen/erlauben
+class SetMilitaryOverrideAllowed : public Coords
+{
+    GC_FRIEND_DECL;
+    const bool enabled;
+    const unsigned char value;
+
+protected:
+    SetMilitaryOverrideAllowed(const MapPoint pt, bool enabled, unsigned char value)
+        : Coords(GCType::SetMilitaryOverrideAllowed, pt), enabled(enabled), value(value)
+    {}
+    SetMilitaryOverrideAllowed(Serializer& ser) : Coords(GCType::SetMilitaryOverrideAllowed, ser), enabled(ser.PopBool()), value(ser.PopUnsignedChar()) {}
+
+public:
+    void Serialize(Serializer& ser) const override
+    {
+        Coords::Serialize(ser);
+        ser.PushBool(enabled);
+        ser.PushUnsignedChar(value);
     }
     void Execute(GameWorld& world, uint8_t playerId) override;
 };

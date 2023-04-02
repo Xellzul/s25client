@@ -27,4 +27,5 @@ public:
 private:
     void Draw_() override;
     void Msg_ButtonClick(unsigned ctrl_id) override;
+    void Msg_ProgressChange(unsigned ctrl_id, unsigned short position) override;
 };

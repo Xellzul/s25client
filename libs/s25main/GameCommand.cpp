@@ -48,7 +48,9 @@ GameCommandPtr GameCommand::Deserialize(Serializer& ser)
         case GCType::UpgradeRoad: gc = new UpgradeRoad(ser); break;
         case GCType::OrderNewSoldiers: gc = new OrderNewSoldiers(ser); break;
         case GCType::SendSoldiersHome: gc = new SendSoldiersHome(ser); break;
+        case GCType::SendWorstSoldiersHome: gc = new SendWorstSoldiersHome(ser); break;
         case GCType::NotifyAlliesOfLocation: gc = new NotifyAlliesOfLocation(ser); break;
+        case GCType::SetMilitaryOverrideAllowed: gc = new SetMilitaryOverrideAllowed(ser); break;
         default: throw std::logic_error("Invalid GC Type: " + helpers::toString(rttr::enum_cast(gcType)));
     }
     RTTR_Assert(gc->gcType == gcType);

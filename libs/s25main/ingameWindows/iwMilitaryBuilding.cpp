@@ -11,8 +11,10 @@
 #include "addons/const_addons.h"
 #include "buildings/nobMilitary.h"
 #include "controls/ctrlImageButton.h"
+#include "controls/ctrlProgress.h"
 #include "figures/nofPassiveSoldier.h"
 #include "helpers/containerUtils.h"
+#include "helpers/toString.h"
 #include "iwDemolishBuilding.h"
 #include "iwHelp.h"
 #include "iwMsgbox.h"
@@ -25,42 +27,62 @@
 #include "gameData/BuildingConsts.h"
 #include "gameData/MilitaryConsts.h"
 #include "gameData/const_gui_ids.h"
+#include "gameData/SettingTypeConv.h"
 #include <set>
+#include <controls/ctrlTextDeepening.h>
 
 iwMilitaryBuilding::iwMilitaryBuilding(GameWorldView& gwv, GameCommandFactory& gcFactory, nobMilitary* const building)
-    : IngameWindow(CGI_BUILDING + MapBase::CreateGUIID(building->GetPos()), IngameWindow::posAtMouse, Extent(226, 194),
+    : IngameWindow(CGI_BUILDING + MapBase::CreateGUIID(building->GetPos()), IngameWindow::posAtMouse, Extent(246, 214),
                    _(BUILDING_NAMES[building->GetBuildingType()]), LOADER.GetImageN("resource", 41)),
       gwv(gwv), gcFactory(gcFactory), building(building)
 {
+    const int bottomRowY = 167;
+
     // Schwert
     AddImage(0, DrawPoint(28, 39), LOADER.GetMapTexture(2298));
     AddImage(1, DrawPoint(28, 39), LOADER.GetWareTex(GoodType::Sword));
 
     // Schild
-    AddImage(2, DrawPoint(196, 39), LOADER.GetMapTexture(2298));
-    AddImage(3, DrawPoint(196, 39), LOADER.GetWareTex(GoodType::ShieldRomans));
+    AddImage(2, DrawPoint(216, 39), LOADER.GetMapTexture(2298));
+    AddImage(3, DrawPoint(216, 39), LOADER.GetWareTex(GoodType::ShieldRomans));
 
     // Hilfe
-    AddImageButton(4, DrawPoint(16, 147), Extent(30, 32), TextureColor::Grey, LOADER.GetImageN("io", 225), _("Help"));
+    AddImageButton(4, DrawPoint(16, bottomRowY), Extent(30, 32), TextureColor::Grey, LOADER.GetImageN("io", 225),
+                   _("Help"));
     // Abreißen
-    AddImageButton(5, DrawPoint(50, 147), Extent(34, 32), TextureColor::Grey, LOADER.GetImageN("io", 23),
+    AddImageButton(5, DrawPoint(50, bottomRowY), Extent(34, 32), TextureColor::Grey, LOADER.GetImageN("io", 23),
                    _("Demolish house"));
     // Gold an/aus (227,226)
-    AddImageButton(6, DrawPoint(90, 147), Extent(32, 32), TextureColor::Grey,
+    AddImageButton(6, DrawPoint(90, bottomRowY), Extent(32, 32), TextureColor::Grey,
                    LOADER.GetImageN("io", ((building->IsGoldDisabledVirtual()) ? 226 : 227)), _("Gold delivery"));
     // "Gehe Zu Ort"
-    AddImageButton(7, DrawPoint(179, 147), Extent(30, 32), TextureColor::Grey, LOADER.GetImageN("io", 107),
+    AddImageButton(7, DrawPoint(199, bottomRowY), Extent(30, 32), TextureColor::Grey, LOADER.GetImageN("io", 107),
                    _("Go to place"));
 
     // Gebäudebild
-    AddImage(8, DrawPoint(117, 114), &building->GetBuildingImage());
+    AddImage(8, DrawPoint(127, 124), &building->GetBuildingImage());
     // "Go to next" (building of same type)
-    AddImageButton(9, DrawPoint(179, 115), Extent(30, 32), TextureColor::Grey, LOADER.GetImageN("io_new", 11),
+    AddImageButton(9, DrawPoint(199, 135), Extent(30, 32), TextureColor::Grey, LOADER.GetImageN("io_new", 11),
                    _("Go to next military building"));
     // addon military control active? -> show button
     if(gwv.GetWorld().GetGGS().isEnabled(AddonId::MILITARY_CONTROL))
-        AddImageButton(10, DrawPoint(124, 147), Extent(30, 32), TextureColor::Grey, LOADER.GetImageN("io_new", 12),
+        AddImageButton(10, DrawPoint(124, bottomRowY), Extent(30, 32), TextureColor::Grey,
+                       LOADER.GetImageN("io_new", 12),
                        _("Send max rank soldiers to a warehouse"));
+
+    if(gwv.GetWorld().GetGGS().isEnabled(AddonId::MILITARY_CONTROL))
+        AddImageButton(11, DrawPoint(156, bottomRowY), Extent(30, 32), TextureColor::Grey,
+                       LOADER.GetImageN("io", 121),
+                       _("Send min rank soldiers to a warehouse"));
+
+    AddImageButton(12, DrawPoint(45, 25), Extent(32, 32), TextureColor::Grey,
+                   LOADER.GetImageN("io", ((building->IsMilitaryOverrideEnabledVirtual()) ? 191 : 133)),
+                   _("Override military settings"));
+
+    AddProgress(13, DrawPoint(16, 137), Extent(180, 26), TextureColor::Grey, 123, 124, MILITARY_SETTINGS_SCALE[7],
+        "", Extent(4, 4), 0, _("Fewer soldeirs"), _("More soldiers"));
+
+    AddTextDeepening(14, DrawPoint(79, 25), Extent(32, 32), TextureColor::Grey, "-", NormalFont,  COLOR_YELLOW);
 }
 
 void iwMilitaryBuilding::Draw_()
@@ -133,6 +155,10 @@ void iwMilitaryBuilding::Draw_()
             healthPos.x += 22;
         }
     }
+
+    GetCtrl<ctrlTextDeepening>(14)->SetText(helpers::toString(building->CalcRequiredNumTroops()));
+
+    GetCtrl<ctrlProgress>(13)->SetPosition(building->GetCurrentMilitarySetting());
 }
 
 void iwMilitaryBuilding::Msg_ButtonClick(const unsigned ctrl_id)
@@ -209,7 +235,39 @@ void iwMilitaryBuilding::Msg_ButtonClick(const unsigned ctrl_id)
             gcFactory.SendSoldiersHome(building->GetPos());
         }
         break;
+        case 11: // send min home button (addon)
+        {
+            gcFactory.SendWorstSoldiersHome(building->GetPos());
+        }
+        break;
+        case 12: 
+        {
+            if(!GAMECLIENT.IsReplayModeOn())
+            {
+                // visuell anzeigen
+                building->ToggleMilitaryEnabledVirtual();
+
+                // NC senden
+                if(gcFactory.SetMilitaryOverrideAllowed(building->GetPos(),
+                                                        building->IsMilitaryOverrideEnabledVirtual(),
+                                                        (unsigned char)GetCtrl<ctrlProgress>(13)->GetPosition()))
+                {
+                    // anderes Bild auf dem Button
+                    if(building->IsMilitaryOverrideEnabledVirtual())
+                        GetCtrl<ctrlImageButton>(12)->SetImage(LOADER.GetImageN("io", 191));
+                    else
+                        GetCtrl<ctrlImageButton>(12)->SetImage(LOADER.GetImageN("io", 133));
+                }
+            }
+        }
+        break;
     }
+}
+
+void iwMilitaryBuilding::Msg_ProgressChange(unsigned ctrl_id, unsigned short position) 
+{
+    gcFactory.SetMilitaryOverrideAllowed(building->GetPos(), building->IsMilitaryOverrideEnabledVirtual(),
+                                         (unsigned char)GetCtrl<ctrlProgress>(13)->GetPosition());
 }
 
 void iwMilitaryBuilding::DemolitionNotAllowed(const GlobalGameSettings& ggs)

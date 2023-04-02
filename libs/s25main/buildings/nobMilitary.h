@@ -48,6 +48,10 @@ private:
     unsigned char numCoins;
     /// Gibt an, ob Goldmünzen gesperrt worden (letzteres nur visuell, um Netzwerk-Latenzen zu verstecken)
     bool coinsDisabled, coinsDisabledVirtual;
+
+    bool millitaryOverrideEnabled, millitaryOverrideEnabledVirtual;
+    unsigned char millitaryOverride;
+
     /// Entfernung zur freindlichen Grenze (woraus sich dann die Besatzung ergibt) von 0-3, 0 fern, 3 nah, 2 Hafen!
     FrontierDistance frontier_distance;
     /// Größe bzw Typ des Militärgebäudes (0 = Baracke, 3 = Festung)
@@ -129,6 +133,7 @@ public:
 
     /// Berechnet die gewünschte Besatzung je nach Grenznähe
     unsigned CalcRequiredNumTroops() const;
+    unsigned GetCurrentMilitarySetting() const;
     /// Calculate the required troop count for the given setting
     unsigned CalcRequiredNumTroops(FrontierDistance assumedFrontierDistance, unsigned settingValue) const;
     /// Reguliert die Besatzung des Gebäudes je nach Grenznähe, bestellt neue Soldaten und schickt überflüssige raus
@@ -205,8 +210,16 @@ public:
 
     /// Stoppt/Erlaubt Goldzufuhr (visuell)
     void ToggleCoinsVirtual() { coinsDisabledVirtual = !coinsDisabledVirtual; }
+
+    void ToggleMilitaryEnabledVirtual() { millitaryOverrideEnabledVirtual = !millitaryOverrideEnabledVirtual; }
+
     /// Stoppt/Erlaubt Goldzufuhr (real)
     void SetCoinsAllowed(bool enabled);
+
+    void SetMilitaryOverrideAllowed(bool enabled, unsigned char value);
+
+    bool IsMilitaryOverrideEnabledVirtual() const { return millitaryOverrideEnabledVirtual; }
+
     /// Fragt ab, ob Goldzufuhr ausgeschaltet ist (visuell)
     bool IsGoldDisabledVirtual() const { return coinsDisabledVirtual; }
     /// Fragt ab, ob Goldzufuhr ausgeschaltet ist (real)
@@ -226,6 +239,10 @@ public:
 
     /// send all soldiers of the highest rank home (if highest=lowest keep 1)
     void SendSoldiersHome();
+
+    /// send all soldiers of the highest rank home (if highest=lowest keep 1)
+    void SendWorstSoldiersHome();
+
     /// order new troops
     void OrderNewSoldiers();
 

@@ -150,11 +150,24 @@ void SetCoinsAllowed::Execute(GameWorld& world, uint8_t playerId)
         bld->SetCoinsAllowed(enabled);
 }
 
+void SetMilitaryOverrideAllowed::Execute(GameWorld& world, uint8_t playerId)
+{
+    auto* const bld = world.GetSpecObj<nobMilitary>(pt_);
+    if(bld && bld->GetPlayer() == playerId)
+        bld->SetMilitaryOverrideAllowed(enabled, value);
+}
 void SendSoldiersHome::Execute(GameWorld& world, uint8_t playerId)
 {
     auto* const bld = world.GetSpecObj<nobMilitary>(pt_);
     if(bld && bld->GetPlayer() == playerId)
         bld->SendSoldiersHome();
+}
+
+void SendWorstSoldiersHome::Execute(GameWorld& world, uint8_t playerId)
+{
+    auto* const bld = world.GetSpecObj<nobMilitary>(pt_);
+    if(bld && bld->GetPlayer() == playerId)
+        bld->SendWorstSoldiersHome();
 }
 
 void OrderNewSoldiers::Execute(GameWorld& world, uint8_t playerId)
