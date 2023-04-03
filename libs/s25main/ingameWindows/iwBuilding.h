@@ -5,6 +5,7 @@
 #pragma once
 
 #include "IngameWindow.h"
+#include "gameTypes/Resource.h"
 
 class nobUsual;
 class GameWorldView;
@@ -23,4 +24,5 @@ private:
     void Msg_PaintBefore() override;
     void Msg_PaintAfter() override;
     void Msg_ButtonClick(unsigned ctrl_id) override;
+    ResourceType GetRequiredResType() const;
 };

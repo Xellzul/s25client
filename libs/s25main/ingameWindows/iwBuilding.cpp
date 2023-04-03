@@ -10,19 +10,24 @@
 #include "controls/ctrlImageButton.h"
 #include "controls/ctrlPercent.h"
 #include "controls/ctrlText.h"
+#include <controls/ctrlTextDeepening.h>
 #include "factories/GameCommandFactory.h"
 #include "helpers/containerUtils.h"
+#include "helpers/toString.h"
 #include "iwDemolishBuilding.h"
 #include "iwHelp.h"
 #include "ogl/FontStyle.h"
 #include "ogl/glArchivItem_Bitmap.h"
 #include "ogl/glFont.h"
+#include "world/GameWorld.h"
 #include "world/GameWorldBase.h"
 #include "world/GameWorldView.h"
 #include "gameData/BuildingConsts.h"
 #include "gameData/BuildingProperties.h"
 #include "gameData/const_gui_ids.h"
+#include "gameData/GameConsts.h"
 #include <sstream>
+#include "GameObject.h"
 
 /// IDs in der IO_DAT von Boot und Schiffs-Bild für den Umschaltebutton beim Schiffsbauer
 const unsigned IODAT_BOAT_ID = 219;
@@ -86,6 +91,11 @@ iwBuilding::iwBuilding(GameWorldView& gwv, GameCommandFactory& gcFactory, nobUsu
     // "Go to next" (building of same type)
     AddImageButton(12, DrawPoint(179, 115), Extent(30, 32), TextureColor::Grey, LOADER.GetImageN("io_new", 11),
                    _("Go to next building of same type"));
+
+    if(BuildingProperties::IsMine(building->GetBuildingType()))
+    {
+        AddTextDeepening(14, DrawPoint(143, 147), Extent(32, 32), TextureColor::Grey, "-", NormalFont, COLOR_GREEN);
+    }
 }
 
 void iwBuilding::Msg_PaintBefore()
@@ -96,6 +106,28 @@ void iwBuilding::Msg_PaintBefore()
     GetCtrl<ctrlText>(10)->SetVisible(!building->HasWorker());
 }
 
+ResourceType iwBuilding::GetRequiredResType() const
+{
+    switch(building->GetBuildingType())
+    {
+        case BuildingType::GoldMine: return ResourceType::Gold;
+        case BuildingType::IronMine: return ResourceType::Iron;
+        case BuildingType::CoalMine: return ResourceType::Coal;
+        default: return ResourceType::Granite;
+    }
+}
+
+namespace {
+struct NodeHasResource
+{
+    const GameWorldBase& world;
+    const ResourceType res;
+    NodeHasResource(const GameWorldBase& world, const ResourceType res) : world(world), res(res) {}
+
+    bool operator()(const MapPoint pt) { return world.GetNode(pt).resources.has(res); }
+};
+} 
+
 void iwBuilding::Msg_PaintAfter()
 {
     IngameWindow::Msg_PaintAfter();
@@ -103,7 +135,7 @@ void iwBuilding::Msg_PaintAfter()
     if(BuildingProperties::IsMine(building->GetBuildingType()))
     {
         // Bei Bergwerken sieht die Nahrungsanzeige ein wenig anders aus (3x 2)
-
+        
         // "Schwarzer Rahmen"
         DrawRectangle(Rect(GetDrawPos() + DrawPoint(40, 60), Extent(144, 24)), 0x80000000);
         DrawPoint curPos = GetDrawPos() + DrawPoint(52, 72);
@@ -116,6 +148,22 @@ void iwBuilding::Msg_PaintAfter()
                 curPos.x += 24;
             }
         }
+
+        const std::vector<MapPoint> pts = gwv.GetWorld().GetMatchingPointsInRadius(
+          building->GetPos(), MINER_RADIUS, NodeHasResource(gwv.GetWorld(), GetRequiredResType()), true);
+
+        int sum = 0;
+
+        for(auto it = pts.begin(); it != pts.end(); ++it)
+        {
+            if (it->isValid())
+            {
+                RTTR_Assert(gwv.GetWorld().GetNode(*it).resources.getType() == GetRequiredResType());
+                sum += gwv.GetWorld().GetNode(*it).resources.getAmount();
+            }
+        }
+
+        GetCtrl<ctrlTextDeepening>(14)->SetText(helpers::toString(sum));
     } else
     {
         DrawPoint curPos = GetDrawPos() + DrawPoint(GetSize().x / 2, 60);
