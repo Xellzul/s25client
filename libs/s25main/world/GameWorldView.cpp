@@ -33,6 +33,8 @@
 #include <glad/glad.h>
 #include <boost/format.hpp>
 #include <cmath>
+#include <algorithm>
+#include "../WindowManager.h"
 
 GameWorldView::GameWorldView(const GameWorldViewer& gwv, const Position& pos, const Extent& size)
     : selPt(0, 0), show_bq(SETTINGS.ingame.showBQ), show_names(SETTINGS.ingame.showNames),
@@ -359,6 +361,69 @@ void GameWorldView::DrawNameProductivityOverlay(const TerrainRenderer& terrainRe
                     attackAidImage->DrawFull(curPos - DrawPoint(0, attackAidImage->getHeight()));
                 }
                 continue;
+            }
+
+            if(no->GetBuildingType() == BuildingType::Catapult
+               && WINDOWMANAGER.FindNonModalWindow(CGI_BUILDING + MapBase::CreateGUIID(pt)))
+            {
+                auto pointsInRadius = GetWorld().GetPointsInRadius(pt, 13);
+
+                for(auto it = pointsInRadius.begin(); it != pointsInRadius.end(); ++it)
+                {
+                    if(gwv.GetVisibility(*it) == Visibility::Invisible)
+                        continue;
+
+                    unsigned distance = GetWorld().CalcDistance(*it, pt);
+                    Position curPos2 = GetWorld().GetNodePos(*it) - offset + curOffset;
+
+                    // Entfernung nicht zu hoch?
+                    if(distance > 12)
+                    {
+                        LOADER.GetMapTexture(22)->DrawFull(curPos2);
+                    }
+
+                    const auto* noMil = GetWorld().GetSpecObj<nobMilitary>(*it);
+                    if(noMil && noMil->GetPlayer() != gwv.GetPlayerId() && noMil->DefendersAvailable())
+                    {
+                        auto* attackAidImage = LOADER.GetImageN("io_new", 8);
+                        attackAidImage->DrawFull(curPos2 - DrawPoint(0, attackAidImage->getHeight()));
+                    }
+                }
+            }
+
+            if((no->GetBuildingType() == BuildingType::CoalMine
+               || no->GetBuildingType() == BuildingType::IronMine
+               || no->GetBuildingType() == BuildingType::GoldMine
+               || no->GetBuildingType() == BuildingType::GraniteMine)
+               && WINDOWMANAGER.FindNonModalWindow(CGI_BUILDING + MapBase::CreateGUIID(pt))
+               && no->GetGOT() != GO_Type::Buildingsite)
+            {
+                auto pointsInRadius = GetWorld().GetPointsInRadius(pt, 2);
+
+                for(auto it = pointsInRadius.begin(); it != pointsInRadius.end(); ++it)
+                {
+                    if(gwv.GetVisibility(*it) == Visibility::Invisible)
+                        continue;
+
+                        // Schild selbst
+                    unsigned imgId;
+                    switch(GetWorld().GetNode(*it).resources.getType())
+                    {
+                        case ResourceType::Iron: imgId = 680; break;
+                        case ResourceType::Gold: imgId = 683; break;
+                        case ResourceType::Coal: imgId = 686; break;
+                        case ResourceType::Granite: imgId = 689; break;
+                        default: continue;
+                    }
+                    if(GetWorld().GetNode(*it).resources.getAmount() == 0)
+                        continue;
+
+                    imgId += std::min(GetWorld().GetNode(*it).resources.getAmount() / 3u, 2u);
+
+                    Position curPos2 = GetWorld().GetNodePos(*it) - offset + curOffset;
+
+                    LOADER.GetMapTexture(imgId)->DrawFull(curPos2, 0xFFFFFFFF);
+                }
             }
 
             // Draw object name
