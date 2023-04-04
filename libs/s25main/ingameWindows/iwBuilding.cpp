@@ -94,7 +94,7 @@ iwBuilding::iwBuilding(GameWorldView& gwv, GameCommandFactory& gcFactory, nobUsu
 
     if(BuildingProperties::IsMine(building->GetBuildingType()))
     {
-        AddTextDeepening(14, DrawPoint(143, 147), Extent(32, 32), TextureColor::Grey, "-", NormalFont, COLOR_GREEN);
+        AddText(14, DrawPoint(208, 52), "", COLOR_YELLOW, FontStyle::RIGHT | FontStyle::BOTTOM, NormalFont);
     }
 }
 
@@ -163,7 +163,7 @@ void iwBuilding::Msg_PaintAfter()
             }
         }
 
-        GetCtrl<ctrlTextDeepening>(14)->SetText(helpers::toString(sum));
+        GetCtrl<ctrlText>(14)->SetText(helpers::toString(sum));
     } else
     {
         DrawPoint curPos = GetDrawPos() + DrawPoint(GetSize().x / 2, 60);

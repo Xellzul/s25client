@@ -385,7 +385,7 @@ void GameWorldView::DrawNameProductivityOverlay(const TerrainRenderer& terrainRe
                     const auto* noMil = GetWorld().GetSpecObj<nobMilitary>(*it);
                     if(noMil && noMil->GetPlayer() != gwv.GetPlayerId() && noMil->DefendersAvailable())
                     {
-                        auto* attackAidImage = LOADER.GetImageN("io_new", 8);
+                        auto* attackAidImage = LOADER.GetImageN("io", 220);
                         attackAidImage->DrawFull(curPos2 - DrawPoint(0, attackAidImage->getHeight()));
                     }
                 }
@@ -396,7 +396,8 @@ void GameWorldView::DrawNameProductivityOverlay(const TerrainRenderer& terrainRe
                || no->GetBuildingType() == BuildingType::GoldMine
                || no->GetBuildingType() == BuildingType::GraniteMine)
                && WINDOWMANAGER.FindNonModalWindow(CGI_BUILDING + MapBase::CreateGUIID(pt))
-               && no->GetGOT() != GO_Type::Buildingsite)
+               /*&& no->GetGOT() != GO_Type::Buildingsite*/
+               )
             {
                 auto pointsInRadius = GetWorld().GetPointsInRadius(pt, 2);
 
@@ -405,24 +406,26 @@ void GameWorldView::DrawNameProductivityOverlay(const TerrainRenderer& terrainRe
                     if(gwv.GetVisibility(*it) == Visibility::Invisible)
                         continue;
 
-                        // Schild selbst
-                    unsigned imgId;
-                    switch(GetWorld().GetNode(*it).resources.getType())
-                    {
-                        case ResourceType::Iron: imgId = 680; break;
-                        case ResourceType::Gold: imgId = 683; break;
-                        case ResourceType::Coal: imgId = 686; break;
-                        case ResourceType::Granite: imgId = 689; break;
-                        default: continue;
-                    }
-                    if(GetWorld().GetNode(*it).resources.getAmount() == 0)
-                        continue;
+                    ITexture* texture;
 
-                    imgId += std::min(GetWorld().GetNode(*it).resources.getAmount() / 3u, 2u);
+                    if (GetWorld().GetNode(*it).resources.getAmount() == 0)
+                    {
+                        texture = LOADER.GetImageN("io", 35);
+                    }
+                    else
+                    {
+                        switch(GetWorld().GetNode(*it).resources.getType())
+                        {
+                            case ResourceType::Iron: texture = LOADER.GetWareTex(GoodType::IronOre); break;
+                            case ResourceType::Gold: texture = LOADER.GetWareTex(GoodType::Gold); break;
+                            case ResourceType::Coal: texture = LOADER.GetWareTex(GoodType::Coal); break;
+                            case ResourceType::Granite: texture = LOADER.GetWareTex(GoodType::Stones); break;
+                            default: texture = LOADER.GetImageN("io", 35); break;
+                        }
+                    }
 
                     Position curPos2 = GetWorld().GetNodePos(*it) - offset + curOffset;
-
-                    LOADER.GetMapTexture(imgId)->DrawFull(curPos2, 0xFFFFFFFF);
+                    texture->DrawFull(curPos2, 0xFFFFFFFF);
                 }
             }
 
