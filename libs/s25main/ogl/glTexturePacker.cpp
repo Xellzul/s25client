@@ -136,8 +136,8 @@ glTexture::glTexture() : handle(VIDEODRIVER.GenerateTexture()), size(0, 0)
     if(!handle)
         return;
     bind();
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
 
 glTexture::glTexture(glTexture&& rhs) noexcept : handle(rhs.handle), size(rhs.size)

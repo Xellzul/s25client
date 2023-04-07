@@ -107,7 +107,8 @@ iwAction::iwAction(GameInterface& gi, GameWorldView& gwv, const Tabs& tabs, MapP
             BuildingType::Catapult},
            {BuildingType::Farm, BuildingType::PigFarm, BuildingType::DonkeyBreeder, BuildingType::Charburner,
             BuildingType::Fortress, BuildingType::HarborBuilding},
-           {BuildingType::GoldMine, BuildingType::IronMine, BuildingType::CoalMine, BuildingType::GraniteMine}}};
+           {BuildingType::GoldMine, BuildingType::IronMine, BuildingType::CoalMine, BuildingType::GraniteMine,
+            BuildingType::Bunker}}};
 
         /// Flexible what-buildings-are-available handling
         helpers::EnumArray<bool, BuildingType> building_available;
@@ -123,6 +124,7 @@ iwAction::iwAction(GameInterface& gi, GameWorldView& gwv, const Tabs& tabs, MapP
 
         if(!military_buildings)
         {
+            building_available[BuildingType::Bunker] = false;
             building_available[BuildingType::Barracks] = false;
             building_available[BuildingType::Guardhouse] = false;
             building_available[BuildingType::Watchtower] = false;

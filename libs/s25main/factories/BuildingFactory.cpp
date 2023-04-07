@@ -24,6 +24,7 @@ noBuilding* BuildingFactory::CreateBuilding(GameWorldBase& world, const Building
         case BuildingType::Barracks:
         case BuildingType::Guardhouse:
         case BuildingType::Watchtower:
+        case BuildingType::Bunker:
         case BuildingType::Fortress: bld = new nobMilitary(type, pt, player, nation); break;
         case BuildingType::Shipyard: bld = new nobShipYard(pt, player, nation); break;
         default: bld = new nobUsual(type, pt, player, nation); break;

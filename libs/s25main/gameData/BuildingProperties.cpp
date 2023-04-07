@@ -5,8 +5,8 @@
 #include "BuildingProperties.h"
 #include "helpers/EnumRange.h"
 
-const std::array<BuildingType, 4> BuildingProperties::militaryBldTypes = []() {
-    std::array<BuildingType, 4> result{};
+const std::array<BuildingType, 5> BuildingProperties::militaryBldTypes = []() {
+    std::array<BuildingType, 5> result{};
     unsigned cur = 0;
     for(const auto bld : helpers::enumRange<BuildingType>())
     {
@@ -22,6 +22,7 @@ bool BuildingProperties::IsMilitary(BuildingType bld)
 {
     switch(bld)
     {
+        case BuildingType::Bunker:
         case BuildingType::Barracks:
         case BuildingType::Guardhouse:
         case BuildingType::Watchtower:

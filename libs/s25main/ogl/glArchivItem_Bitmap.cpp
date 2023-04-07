@@ -100,6 +100,10 @@ void glArchivItem_Bitmap::FillTexture()
     const Extent texSize = GetTexSize();
     libsiedler2::PixelBufferBGRA buffer(texSize.x, texSize.y);
     print(buffer);
+
+    //glGenerateMipmap(GL_TEXTURE_2D);
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexImage2D(GL_TEXTURE_2D, 0, iformat, texSize.x, texSize.y, 0, dformat, GL_UNSIGNED_BYTE, buffer.getPixelPtr());
 }
 

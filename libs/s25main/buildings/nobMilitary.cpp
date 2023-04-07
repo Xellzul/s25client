@@ -51,6 +51,11 @@ nobMilitary::nobMilitary(const BuildingType type, const MapPoint pos, const unsi
     // Größe ermitteln
     switch(type)
     {
+        case BuildingType::Bunker: 
+            size = 4;
+            coinsDisabled = true;
+            coinsDisabledVirtual = true;
+            break;
         case BuildingType::Barracks: size = 0; break;
         case BuildingType::Guardhouse: size = 1; break;
         case BuildingType::Watchtower: size = 2; break;
@@ -185,6 +190,7 @@ void nobMilitary::Draw(DrawPoint drawPt)
                           world->GetPlayer(player).color);
     }
 
+
     // Die Fahne, die anzeigt wie weit das Gebäude von der Grenze entfernt ist, zeichnen
     FrontierDistance frontier_distance_tmp = frontier_distance;
     ITexture* bitmap = nullptr;
@@ -200,10 +206,14 @@ void nobMilitary::Draw(DrawPoint drawPt)
     {
         if(frontier_distance_tmp == FrontierDistance::Near)
             frontier_distance_tmp = FrontierDistance::Harbor;
-        bitmap = LOADER.GetMapTexture(3150 + rttr::enum_cast(frontier_distance_tmp) * 4 + animationFrame);
+        bitmap = LOADER.GetMapTexture(3150 + rttr::enum_cast(frontier_distance_tmp) * 4 + 0);
     }
-    if(bitmap)
+    if (bitmap)
+    {
+        LOADER.GetTextureN("map_new", 3150 + 0)->DrawFull(drawPt + BORDER_FLAG_OFFSET[nation][size] + DrawPoint(0, 11));
+
         bitmap->DrawFull(drawPt + BORDER_FLAG_OFFSET[nation][size]);
+    }
 
     // Wenn Goldzufuhr gestoppt ist, Schild außen am Gebäude zeichnen zeichnen
     if(coinsDisabledVirtual)

@@ -238,16 +238,25 @@ BlockingManner noBaseBuilding::GetBM() const
 /// Gibt ein Bild zurück für das normale Gebäude
 ITexture& noBaseBuilding::GetBuildingImage() const
 {
+    if(bldType_ == BuildingType::Bunker)
+        return GetBuildingImage(BuildingType::Barracks, nation);
+
     return GetBuildingImage(bldType_, nation);
 }
 
 ITexture& noBaseBuilding::GetBuildingImage(BuildingType type, Nation nation) //-V688
 {
+    if(type == BuildingType::Bunker)
+        return LOADER.building_cache[nation][BuildingType::Barracks].building;
+
     return LOADER.building_cache[nation][type].building;
 }
 
 /// Gibt ein Bild zurück für die Tür des Gebäudes
 ITexture& noBaseBuilding::GetDoorImage() const
 {
+    if(bldType_ == BuildingType::Bunker)
+        return LOADER.building_cache[nation][BuildingType::Barracks].building;
+
     return LOADER.building_cache[nation][bldType_].door;
 }

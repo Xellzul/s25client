@@ -20,7 +20,7 @@ constexpr unsigned MAX_MILITARY_DISTANCE_MIDDLE = 26;
 /// highest military rank - currently ranks 0-4 available
 constexpr unsigned MAX_MILITARY_RANK = NUM_SOLDIER_RANKS - 1u;
 /// Number of military buildings
-constexpr unsigned NUM_MILITARY_BLDS = 4;
+constexpr unsigned NUM_MILITARY_BLDS = 5;
 
 /// Basisangriffsreichweite (Angriff mit allen Soldaten möglich)
 constexpr unsigned BASE_ATTACKING_DISTANCE = 21;
@@ -36,25 +36,25 @@ constexpr unsigned MEET_FOR_FIGHT_DISTANCE = 5;
 
 /// Besatzung in den einzelnen Militärgebäuden und nach Nation
 constexpr helpers::EnumArray<std::array<int, NUM_MILITARY_BLDS>, Nation> NUM_TROOPS = {
-  {{2, 3, 6, 9}, {2, 3, 6, 9}, {2, 3, 6, 9}, {2, 3, 6, 9}, {2, 3, 6, 9}}};
+  {{2, 3, 6, 9, 1}, {2, 3, 6, 9, 1}, {2, 3, 6, 9, 1}, {2, 3, 6, 9, 1}, {2, 3, 6, 9, 1}}};
 
 /// Gold in den einzelnen Militärgebäuden und nach Nation
 constexpr helpers::EnumArray<std::array<int, NUM_MILITARY_BLDS>, Nation> NUM_GOLDS = {
-  {{1, 2, 4, 6}, {1, 2, 4, 6}, {1, 2, 4, 6}, {1, 2, 4, 6}, {1, 2, 4, 6}}};
+  {{1, 2, 4, 6, 0}, {1, 2, 4, 6, 0}, {1, 2, 4, 6, 0}, {1, 2, 4, 6, 0}, {1, 2, 4, 6, 0}}};
 
 /// Radien der Militärgebäude
-constexpr std::array<unsigned, NUM_MILITARY_BLDS> SUPPRESS_UNUSED MILITARY_RADIUS = {{8, 9, 10, 11}};
+constexpr std::array<unsigned, NUM_MILITARY_BLDS> SUPPRESS_UNUSED MILITARY_RADIUS = {{8, 9, 10, 11, 5}};
 // Radius für einzelne Hafen(baustellen)
 constexpr unsigned HARBOR_RADIUS = 8;
 constexpr unsigned HQ_RADIUS = 9;
 
 /// Offset of the troop flag per nation and type from the buildings origin
 constexpr helpers::EnumArray<std::array<DrawPoint, NUM_MILITARY_BLDS>, Nation> TROOPS_FLAG_OFFSET = {
-  {{{{24, -41}, {19, -41}, {31, -88}, {35, -67}}},
-   {{{-9, -49}, {14, -59}, {16, -63}, {0, -44}}},
-   {{{-24, -36}, {9, -62}, {-2, -80}, {23, -75}}},
-   {{{-5, -50}, {-5, -51}, {-9, -74}, {-12, -58}}},
-   {{{-22, -37}, {-2, -51}, {20, -70}, {-46, -64}}}}};
+  {{{{24, -41}, {19, -41}, {31, -88}, {35, -67}, {24, -41}}},
+   {{{-9, -49}, {14, -59}, {16, -63}, {0, -44}, {-9, -49}}},
+   {{{-24, -36}, {9, -62}, {-2, -80}, {23, -75}, {-24, -36}}},
+   {{{-5, -50}, {-5, -51}, {-9, -74}, {-12, -58}, {-5, -50}}},
+   {{{-22, -37}, {-2, -51}, {20, -70}, {-46, -64}, {-22, -37}}}}};
 
 /// Offset of the troop flag per nation from the HQs origin
 constexpr helpers::EnumArray<DrawPoint, Nation> TROOPS_FLAG_HQ_OFFSET = {
@@ -62,11 +62,11 @@ constexpr helpers::EnumArray<DrawPoint, Nation> TROOPS_FLAG_HQ_OFFSET = {
 
 /// Offset of the border indicator flag per nation from the buildings origin
 constexpr helpers::EnumArray<std::array<DrawPoint, NUM_MILITARY_BLDS>, Nation> BORDER_FLAG_OFFSET = {
-  {{{{-6, -36}, {7, -48}, {-18, -28}, {-47, -64}}},
-   {{{17, -45}, {-3, -49}, {-30, -25}, {22, -53}}},
-   {{{28, -19}, {29, -18}, {-27, -12}, {-49, -62}}},
-   {{{24, -19}, {24, -19}, {17, -52}, {-37, -32}}},
-   {{{8, -26}, {13, -36}, {-1, -59}, {-10, -61}}}}};
+  {{{{-6, -36}, {7, -48}, {-18, -28}, {-47, -64}, {-6, -36}}},
+   {{{17, -45}, {-3, -49}, {-30, -25}, {22, -53}, {17, -45}}},
+   {{{28, -19}, {29, -18}, {-27, -12}, {-49, -62}, {28, -19}}},
+   {{{24, -19}, {24, -19}, {17, -52}, {-37, -32}, {24, -19}}},
+   {{{8, -26}, {13, -36}, {-1, -59}, {-10, -61}, {8, -26}}}}};
 
 /// maximale Hitpoints der Soldaten von jedem Volk
 constexpr std::array<uint8_t, NUM_SOLDIER_RANKS> HITPOINTS = {3, 4, 5, 6, 7};

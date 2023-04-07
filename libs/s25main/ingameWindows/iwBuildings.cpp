@@ -26,7 +26,7 @@
 #include "gameData/const_gui_ids.h"
 
 /// Reihenfolge der Gebäude
-const std::array<BuildingType, 32> bts = {
+const std::array<BuildingType, 33> bts = {
   BuildingType::Barracks,      BuildingType::Guardhouse, BuildingType::Watchtower,     BuildingType::Fortress,
   BuildingType::GraniteMine,   BuildingType::CoalMine,   BuildingType::IronMine,       BuildingType::GoldMine,
   BuildingType::LookoutTower,  BuildingType::Catapult,   BuildingType::Woodcutter,     BuildingType::Fishery,
@@ -37,7 +37,8 @@ const std::array<BuildingType, 32> bts = {
   BuildingType::Mill,          BuildingType::Bakery,     BuildingType::Sawmill,        BuildingType::Mint,
   BuildingType::Well,          BuildingType::Shipyard,   BuildingType::Farm,           BuildingType::DonkeyBreeder,
   BuildingType::Charburner,
-  BuildingType::HarborBuilding // entry 31
+  BuildingType::HarborBuilding, // entry 31,
+  BuildingType::Bunker
 };
 
 // Abstand des ersten Icons vom linken oberen Fensterrand

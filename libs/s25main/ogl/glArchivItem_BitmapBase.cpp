@@ -84,7 +84,7 @@ void glArchivItem_BitmapBase::GenerateTexture()
 
     VIDEODRIVER.BindTexture(texture);
 
-    GLint filter = interpolateTexture_ ? GL_NEAREST : GL_LINEAR;
+    GLint filter = GL_LINEAR;
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
 

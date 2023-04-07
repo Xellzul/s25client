@@ -386,7 +386,7 @@ void GameWorldView::DrawNameProductivityOverlay(const TerrainRenderer& terrainRe
                     if(noMil && noMil->GetPlayer() != gwv.GetPlayerId() && noMil->DefendersAvailable())
                     {
                         auto* attackAidImage = LOADER.GetImageN("io", 220);
-                        attackAidImage->DrawFull(curPos2 - DrawPoint(0, attackAidImage->getHeight()));
+                        attackAidImage->DrawFull(curPos2 - DrawPoint(20, attackAidImage->getHeight()-10));
                     }
                 }
             }
@@ -399,7 +399,7 @@ void GameWorldView::DrawNameProductivityOverlay(const TerrainRenderer& terrainRe
                /*&& no->GetGOT() != GO_Type::Buildingsite*/
                )
             {
-                auto pointsInRadius = GetWorld().GetPointsInRadius(pt, 2);
+                auto pointsInRadius = GetWorld().GetPointsInRadiusWithCenter(pt, 2);
 
                 for(auto it = pointsInRadius.begin(); it != pointsInRadius.end(); ++it)
                 {

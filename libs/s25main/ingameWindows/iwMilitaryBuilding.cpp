@@ -72,7 +72,7 @@ iwMilitaryBuilding::iwMilitaryBuilding(GameWorldView& gwv, GameCommandFactory& g
 
     if(gwv.GetWorld().GetGGS().isEnabled(AddonId::MILITARY_CONTROL))
         AddImageButton(11, DrawPoint(156, bottomRowY), Extent(30, 32), TextureColor::Grey,
-                       LOADER.GetImageN("io", 121),
+                       LOADER.GetImageN("io_new", 15),
                        _("Send min rank soldiers to a warehouse"));
 
     AddImageButton(12, DrawPoint(45, 25), Extent(32, 32), TextureColor::Grey,

@@ -15,7 +15,7 @@ public:
     BuildingProperties() = delete;
 
     /// Stores the bld types that are military blds as a cache
-    static const std::array<BuildingType, 4> militaryBldTypes;
+    static const std::array<BuildingType, 5> militaryBldTypes;
 
     /// True iff the building type is used (not nothing)
     static bool IsValid(BuildingType bld);

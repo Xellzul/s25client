@@ -147,6 +147,8 @@ glArchivItem_Bitmap* Loader::GetNationImage(Nation nation, unsigned nr)
 
 glArchivItem_Bitmap* Loader::GetNationIcon(Nation nation, BuildingType bld)
 {
+    if(bld == BuildingType::Bunker)
+        return GetNationIcon(nation, BuildingType::Barracks);
     if(bld == BuildingType::Charburner)
         return LOADER.GetImageN("charburner", rttr::enum_cast(nation) * 8 + 8);
     else
